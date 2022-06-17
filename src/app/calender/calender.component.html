@@ -1,0 +1,217 @@
+
+<div class="main row text-center">
+        
+        <div class="col-md-4">
+            <div class="btn-group">
+                <button
+                class="btn btn-primary"
+                mwlCalendarPreviousView
+                [view]="view"
+                [(viewDate)]="viewDate"
+                (viewDateChange)="closeOpenMonthViewDay()"
+                >
+                Previous
+            </button>
+            <button
+            class="btn btn-outline-secondary"
+            mwlCalendarToday
+            [(viewDate)]="viewDate"
+            >
+            Today
+        </button>
+        <button
+        class="btn btn-primary"
+        mwlCalendarNextView
+        [view]="view"
+        [(viewDate)]="viewDate"
+        (viewDateChange)="closeOpenMonthViewDay()"
+        >
+        Next
+    </button>
+    
+    <button class="btn1 btn-primary" #popupbtn id="popupbtn" (click)="open()">Get Appointment</button>
+</div>
+<br>
+<br>
+
+<div class="current col-md-4">
+    <h2>{{ viewDate | calendarDate:(view + 'ViewTitle'):'en' }}</h2>
+</div>
+
+</div>
+</div>
+<!-- modal -->
+<ng-template #content let-modal>
+    <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">Employee Form</h4>
+            <button type="button" #closebtn class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="addEventForm" (ngSubmit)="SaveData()">
+                <div class="mb-3">
+                    <label>First Name</label>
+                    <div class="input-group">
+                        <input name="first" class="form-control" formControlName="first">
+                    </div>
+                    <span *ngIf="first && first.invalid" class="errormessage">Please Enter valid name</span>
+                </div>
+                <div class="mb-3">
+                    <label>Last Name</label>
+                    <div class="input-group">
+                        <input name="last" class="form-control" formControlName="last">
+                    </div>
+                    <span *ngIf="last && last.invalid" class="errormessage">Please Enter valid name</span>
+                </div>
+                <div class="mb-3">
+                    <label>Email</label>
+                    <div class="input-group">
+                        <input name="email" class="form-control" formControlName="email">
+                    </div>
+                    <span *ngIf="email && email.invalid" class="errormessage">Please Enter valid email</span>
+                </div>
+                <div class="mb-3">
+                    <label>Gender</label>
+                    <div class="input-group">
+                        <select class="form-control" formControlName="gender" >
+                            
+                            <option>Choose gender</option>
+                            <option *ngFor="let web of genderList">{{web}}</option>  
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Age</label>
+                    <div class="input-group">
+                        <input name="age" class="form-control" formControlName="age">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Date</label>
+                    <div class="input-group">
+                        <input name="date" class="form-control" formControlName="date">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Time</label>
+                    <div class="input-group">
+                        <input name="time" class="form-control" formControlName="time">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    
+                    <div class="input-group">
+                        <button [disabled]="addEventForm.invalid" type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                    
+                    <span [ngClass]="errorclass" >{{errormessage}}</span>
+                    
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button style="display: none;" type="button" class="btn btn-outline-dark"
+            (click)="addEvent()">Save</button>
+        </div>
+    </ng-template>   
+    
+    <br />
+  <br /> 
+  <div class="calender" [ngSwitch]="view">
+      <mwl-calendar-month-view
+      *ngSwitchCase="CalendarView.Month"
+      [viewDate]="viewDate"
+      [events]="events"
+      [refresh]="refresh"
+      [activeDayIsOpen]="activeDayIsOpen"
+      (dayClicked)="dayClicked($event.day)"
+      (eventClicked)="handleEvent('Clicked', $event.event)"
+      (eventTimesChanged)="eventTimesChanged($event)"
+    >
+    </mwl-calendar-month-view>
+     
+  </div>
+  
+
+  
+  <br /><br /><br />
+  
+  
+
+ <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Primary color</th>
+          <th>Secondary color</th>
+          <th>Starts at</th>
+          <th>Ends at</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+  
+      <tbody>
+        <tr *ngFor="let event of events">
+          <td>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="event.title"
+              (keyup)="refresh.next()"
+            />
+          </td>
+          <td>
+            <input
+              type="color"
+              [(ngModel)]="event.color.primary"
+              (change)="refresh.next()"
+            />
+          </td>
+          <td>
+            <input
+              type="color"
+              [(ngModel)]="event.color.secondary"
+              (change)="refresh.next()"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              type="text"
+              mwlFlatpickr
+              [(ngModel)]="event.start"
+              (ngModelChange)="refresh.next()"
+              [altInput]="true"
+              [convertModelValue]="true"
+              [enableTime]="true"
+              dateFormat="Y-m-dTH:i"
+              altFormat="F j, Y H:i"
+              placeholder="Not set"
+            />
+          </td>
+          
+          <td>
+            <input
+              class="form-control"
+              type="text"
+              mwlFlatpickr
+              [(ngModel)]="event.end"
+              (ngModelChange)="refresh.next()"
+              [altInput]="true"
+              [convertModelValue]="true"
+              [enableTime]="true"
+              dateFormat="Y-m-dTH:i"
+              altFormat="F j, Y H:i"
+              placeholder="Not set"
+            />
+          </td>
+          <td>
+            <button class="btn btn-danger" (click)="deleteEvent(event)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
